@@ -2,6 +2,7 @@ package main
 
 import org.apache.spark.{SparkConf, SparkContext}
 import com.datastax.spark.connector._
+import org.apache.spark.rdd.RDD
 
 object MainApp extends App{
   val sc = new SparkContext(
@@ -13,9 +14,7 @@ object MainApp extends App{
   )
 
   var data = sc.cassandraTable("ctrack", "trips")
-
-  var c = data.count
-  var rowF = data.first
+  var rows = data.toJavaRDD()
 
   System.out.println("Spark job complete")
 }
