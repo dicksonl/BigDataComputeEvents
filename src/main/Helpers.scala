@@ -7,7 +7,7 @@ object Helpers {
       val ddate = row.getDateTime("ddate")
       val hourOfDate = ddate.getHourOfDay
 
-      if(hourOfDate > from && hourOfDate < to) {
+      if(hourOfDate >= from && hourOfDate < to) {
         return true
       }
         false
