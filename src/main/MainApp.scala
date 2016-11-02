@@ -1,8 +1,9 @@
 package main
 
+import Domain.Speeding
 import org.apache.spark.{SparkConf, SparkContext}
 import com.datastax.spark.connector._
-import Domain.Speeding
+
 
 object MainApp extends App{
   val sc = new SparkContext(
@@ -14,11 +15,10 @@ object MainApp extends App{
       .set("spark.cassandra.connection.port", "9042")
   )
 
-  var data = sc.cassandraTable("ctrack", "movements")
-  data.cache
-
+//  var data = sc.cassandraTable("ctrack", "movements")
+    var data = sc.cassandraTable("ctrack", "speedingbystreet")
+    data.cache
   //Speeding.ByHour(data)
-  Speeding.ByStreet(data)
-
-
+  //Speeding.ByStreet(data)
+    Speeding.GetStreetRanking(data)
 }

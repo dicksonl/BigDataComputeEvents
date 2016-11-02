@@ -3,8 +3,12 @@ package Domain
 import com.datastax.spark.connector.CassandraRow
 import com.datastax.spark.connector.rdd.CassandraTableScanRDD
 import main.Helpers
+import Data.CassandraContext
 
 import scala.collection.mutable
+import Models.speeding
+
+import scala.collection.mutable.ListBuffer
 
 object Speeding {
   def ByHour(data: CassandraTableScanRDD[CassandraRow]){
@@ -53,16 +57,34 @@ object Speeding {
     val safeDriving =
       data.where("mobilestatus = ?", "Driving").select("street").map(x =>(x, 1)).reduceByKey(_+_).collect
     val totalMovements = ( speeding ++ safeDriving ).groupBy( _._1 ).map( kv => (kv._1, kv._2.map( _._2).sum ))
-    var probability = mutable.Map[String,Float]()
+    var probability = mutable.Map[String,(Float, Int, Int, Float)]()
     totalMovements.foreach( t => {
-      var lProb = 0f
+      var lProb = (0f, 0, 0, 0f)
         speeding.foreach(s =>{
           if(s._1.getString("street") == t._1.getString("street")){
-              lProb = s._2.toFloat / t._2
+
+              lProb = (s._2.toFloat / t._2, s._2, t._2, (s._2.toFloat/t._2)*t._2)
           }
         })
        probability += ((t._1.getString("street"), lProb))
     })
+    CassandraContext.StoreSpeedingForStreets(probability)
   }
-  //add average driving speed of all drivers in each roa
+
+  def GetStreetRanking(data: CassandraTableScanRDD[CassandraRow]) {
+    val collection = data.where("significance > ?", 0).collect
+    var rank = new ListBuffer[speeding]
+
+    collection.foreach( x =>
+      rank +=  new speeding(
+        x.getString("address"),
+        x.getFloat("significance"),
+        x.getInt("speedingcount"),
+        x.getFloat("speedingpercent"),
+        x.getInt("totalmovement"))
+    )
+
+    var sorted = rank.sortBy(_.significance).reverse
+    sorted.foreach(x => System.out.println(x.address + ":" + x.significance + "=" + x.speedingcount + "/" + x.totalmovement))
+  }
 }
