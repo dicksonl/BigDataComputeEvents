@@ -15,10 +15,10 @@ object MainApp extends App{
       .set("spark.cassandra.connection.port", "9042")
   )
 
-//  var data = sc.cassandraTable("ctrack", "movements")
-    var data = sc.cassandraTable("ctrack", "speedingbystreet")
+  var data = sc.cassandraTable("ctrack", "movements")
+//    var data = sc.cassandraTable("ctrack", "speedingbystreet")
     data.cache
   //Speeding.ByHour(data)
-  //Speeding.ByStreet(data)
-    Speeding.GetStreetRanking(data)
+  Speeding.ByStreet(data)
+//    Speeding.GetStreetRanking(data)
 }

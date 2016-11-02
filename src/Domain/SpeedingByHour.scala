@@ -63,7 +63,7 @@ object Speeding {
         speeding.foreach(s =>{
           if(s._1.getString("street") == t._1.getString("street")){
 
-              lProb = (s._2.toFloat / t._2, s._2, t._2, (s._2.toFloat/t._2)*t._2)
+              lProb = (s._2.toFloat / t._2, s._2, t._2, (s._2.toFloat/t._2)*s._2)
           }
         })
        probability += ((t._1.getString("street"), lProb))
