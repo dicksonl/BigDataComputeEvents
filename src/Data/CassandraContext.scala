@@ -43,5 +43,35 @@ object CassandraContext {
     false
   }
 
+  def StoreSpeedingDistanceForDrivers(map : scala.collection.mutable.Map[String,(Float, Int, Int, Float)]): Boolean = {
+    try {
+      session.execute("Truncate speedingbydistancebydriver;")
 
+      val batch = new BatchStatement()
+
+      for((k, v) <- map){
+        batch.add(
+          new SimpleStatement(
+            "INSERT INTO ctrack.speedingbydistancebydriver (" +
+              "partkey, " +
+              "driverid, " +
+              "significance, " +
+              "speedingpercent, " +
+              "speedingmeters, " +
+              "totaldrivenmeters" +
+              ") VALUES (" +
+              "1, " +
+              "$$" + StringEscapeUtils.escapeJava(k) + "$$, " +
+              v._4 + "," +
+              v._1 + "," +
+              v._2 + "," +
+              v._3 + "" +
+              ");"))
+      }
+      session.execute(batch)
+
+      return true
+    } finally {}
+    false
+  }
 }
