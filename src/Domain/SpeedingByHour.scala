@@ -6,7 +6,7 @@ import main.Helpers
 import Data.CassandraContext
 
 import scala.collection.mutable
-import Models.speeding
+import Models.{SpeedingByDriverDistance, speeding}
 
 import scala.collection.mutable.ListBuffer
 
@@ -108,10 +108,10 @@ object Speeding {
 
   def GetDriverDistanceRanking(data: CassandraTableScanRDD[CassandraRow]) {
     val collection = data.where("significance > ?", 0).collect
-    var rank = new ListBuffer[speeding]
+    var rank = new ListBuffer[SpeedingByDriverDistance]
 
     collection.foreach( x =>
-      rank +=  new speeding(
+      rank +=  new SpeedingByDriverDistance(
         x.getString("driverid"),
         x.getFloat("significance"),
         x.getInt("speedingmeters"),
@@ -120,6 +120,6 @@ object Speeding {
     )
 
     val sorted = rank.sortBy(_.significance).reverse
-    sorted.foreach(x => System.out.println(x.address + ":" + x.significance + "=" + (x.speedingcount/1000) + "Km/" + (x.totalmovement / 1000)))
+    sorted.foreach(x => System.out.println(x.driverid + ":" + x.significance + "=" + (x.speedingdistance/1000) + "Km/" + (x.totaldrivendistance / 1000)))
   }
 }
