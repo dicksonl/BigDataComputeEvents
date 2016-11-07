@@ -102,7 +102,7 @@ object Speeding {
         x.getInt("totalmovement"))
     )
 
-    var sorted = rank.sortBy(_.significance).reverse
+    val sorted = rank.sortBy(_.significance).reverse
     sorted.foreach(x => System.out.println(x.address + ":" + x.significance + "=" + x.speedingcount + "/" + x.totalmovement))
   }
 
@@ -119,7 +119,7 @@ object Speeding {
         x.getInt("totaldrivenmeters"))
     )
 
-    var sorted = rank.sortBy(_.significance).reverse
+    val sorted = rank.sortBy(_.significance).reverse
     sorted.foreach(x => System.out.println(x.address + ":" + x.significance + "=" + (x.speedingcount/1000) + "Km/" + (x.totalmovement / 1000)))
   }
 }
