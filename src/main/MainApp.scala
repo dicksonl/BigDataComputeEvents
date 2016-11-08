@@ -1,6 +1,6 @@
 package main
 
-import Domain.{Speeding, SpeedingFunctions}
+import Domain.{SpeedingFunctions}
 import org.apache.spark.{SparkConf, SparkContext}
 import com.datastax.spark.connector._
 
