@@ -4,13 +4,11 @@ import com.datastax.spark.connector.CassandraRow
 import com.datastax.spark.connector.rdd.CassandraTableScanRDD
 import main.Helpers
 import Data.CassandraContext
-
 import scala.collection.mutable
 import Models.{SpeedingByDriverDistance, speeding}
-
 import scala.collection.mutable.ListBuffer
 
-object Speeding {
+object SpeedingFunctions {
   def ByHour(data: CassandraTableScanRDD[CassandraRow]){
     val collection = data.where("mobilestatus = ?", "Speed Violation").collect
 
@@ -120,6 +118,6 @@ object Speeding {
     )
 
     val sorted = rank.sortBy(_.significance).reverse
-    sorted.foreach(x => System.out.println(x.driverid + ":" + x.significance + "=" + (x.speedingdistance/1000) + "Km/" + (x.totaldrivendistance / 1000)))
+    sorted.foreach(x => System.out.println(x.driverid + ":" + x.significance + "=" + (x.speedingdistance/1000) + "Km/" + (x.totaldrivendistance / 1000) + "Km"))
   }
 }

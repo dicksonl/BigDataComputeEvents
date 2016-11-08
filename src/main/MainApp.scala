@@ -1,9 +1,8 @@
 package main
 
-import Domain.Speeding
+import Domain.{Speeding, SpeedingFunctions}
 import org.apache.spark.{SparkConf, SparkContext}
 import com.datastax.spark.connector._
-
 
 object MainApp extends App{
   val sc = new SparkContext(
@@ -24,5 +23,5 @@ object MainApp extends App{
   //Speeding.ByDriverSpeedDistanceRanking(data)
 
   //Speeding.GetStreetRanking(data)
-  Speeding.GetDriverDistanceRanking(data)
+    SpeedingFunctions.GetDriverDistanceRanking(data)
 }
