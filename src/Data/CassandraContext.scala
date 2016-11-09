@@ -77,9 +77,9 @@ object CassandraContext {
 
   def StoreEventsForStreets(map:
       scala.collection.mutable.Map[String,
-    ((Float, Int, Int, Float),
+    ((Float, Int, Float),
       (Float, Int, Float),
-      (Float, Int, Float))]){
+      (Float, Int, Float), Int)]){
     try {
       session.execute("Truncate harshEventsbyStreet;")
 
@@ -104,10 +104,10 @@ object CassandraContext {
               ") VALUES (" +
               "1, " +
               "$$" + StringEscapeUtils.escapeJava(k) + "$$, " +
-               v._1._3 + "," +
+               v._4 + "," +
                v._1._1 + "," +
                v._1._2 + "," +
-               v._1._4 + "," +
+               v._1._3 + "," +
                v._2._1 + "," +
                v._2._2 + "," +
                v._2._3 + "," +
