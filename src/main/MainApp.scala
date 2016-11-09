@@ -1,6 +1,6 @@
 package main
 
-import Domain.{SpeedingFunctions}
+import Domain.{SpeedingFunctions, HarshEventsFunctions}
 import org.apache.spark.{SparkConf, SparkContext}
 import com.datastax.spark.connector._
 
@@ -14,14 +14,14 @@ object MainApp extends App{
       .set("spark.cassandra.connection.port", "9042")
   )
 
-  //var data = sc.cassandraTable("ctrack", "movements")
+  var data = sc.cassandraTable("ctrack", "movements")
   //var data = sc.cassandraTable("ctrack", "speedingbystreet")
-    var data = sc.cassandraTable("ctrack", "speedingbydistancebydriver")
+  //var data = sc.cassandraTable("ctrack", "speedingbydistancebydriver")
     data.cache
   //Speeding.ByHour(data)
   //Speeding.ByStreet(data)
   //Speeding.ByDriverSpeedDistanceRanking(data)
-
+    HarshEventsFunctions.ByStreet(data)
   //Speeding.GetStreetRanking(data)
-    SpeedingFunctions.GetDriverDistanceRanking(data)
+  //SpeedingFunctions.GetDriverDistanceRanking(data)
 }

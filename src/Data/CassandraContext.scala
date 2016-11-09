@@ -74,4 +74,52 @@ object CassandraContext {
     } finally {}
     false
   }
+
+  def StoreEventsForStreets(map:
+      scala.collection.mutable.Map[String,
+    ((Float, Int, Int, Float),
+      (Float, Int, Float),
+      (Float, Int, Float))]){
+    try {
+      session.execute("Truncate harshEventsbyStreet;")
+
+      val batch = new BatchStatement()
+
+      for((k, v) <- map){
+        batch.add(
+          new SimpleStatement(
+            "INSERT INTO ctrack.harshEventsbyStreet (" +
+              "partkey, " +
+              "address, " +
+              "totalmovements, " +
+              "accpercent, " +
+              "accevents, " +
+              "accsignificance, " +
+              "brkpercent, " +
+              "brkevents, " +
+              "brksignificance, " +
+              "crnpercent, " +
+              "crnevents, " +
+              "crnsignificance " +
+              ") VALUES (" +
+              "1, " +
+              "$$" + StringEscapeUtils.escapeJava(k) + "$$, " +
+               v._1._3 + "," +
+               v._1._1 + "," +
+               v._1._2 + "," +
+               v._1._4 + "," +
+               v._2._1 + "," +
+               v._2._2 + "," +
+               v._2._3 + "," +
+               v._3._1 + "," +
+               v._3._2 + "," +
+               v._3._3 +
+               ");"))
+      }
+      session.execute(batch)
+
+      return true
+    } finally {}
+    false
+  }
 }
