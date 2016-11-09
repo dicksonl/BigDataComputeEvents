@@ -4,7 +4,6 @@ import Data.CassandraContext
 import Models.harsheventsbystreet
 import com.datastax.spark.connector.CassandraRow
 import com.datastax.spark.connector.rdd.CassandraTableScanRDD
-
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 

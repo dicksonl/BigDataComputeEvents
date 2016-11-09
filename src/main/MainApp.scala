@@ -23,7 +23,8 @@ object MainApp extends App{
   //Speeding.ByStreet(data)
   //Speeding.ByDriverSpeedDistanceRanking(data)
   //HarshEventsFunctions.ByStreet(data)
+
   //Speeding.GetStreetRanking(data)
   //SpeedingFunctions.GetDriverDistanceRanking(data)
-  HarshEventsFunctions.GetStreetRanking(data)
+  //HarshEventsFunctions.GetStreetRanking(data)
 }
