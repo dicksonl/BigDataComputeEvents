@@ -58,27 +58,23 @@ object HarshEventsFunctions {
         var accProb = (0f, 0, 0f)
         var brakingProb = (0f, 0, 0f)
         var corneringProb = (0f, 0, 0f)
-        var totalEvts = 0
 
         harshAcc.foreach(a =>{
           if(a._1.getString("street") == t._1.getString("street")){
             accProb = (a._2.toFloat / t._2, a._2, (a._2.toFloat/t._2)*a._2)
-            totalEvts += a._2
           }})
 
           harshBraking.foreach(b =>{
           if(b._1.getString("street") == t._1.getString("street")){
             brakingProb = (b._2.toFloat / t._2, b._2, (b._2.toFloat/t._2)*b._2)
-            totalEvts += b._2
           }})
 
         harshCornering.foreach(c =>{
           if(c._1.getString("street") == t._1.getString("street")){
             corneringProb = (c._2.toFloat / t._2, c._2, (c._2.toFloat/t._2)*c._2)
-            totalEvts += c._2
           }})
 
-        probability += ((t._1.getString("street"), (accProb, brakingProb, corneringProb, totalEvts)))
+        probability += ((t._1.getString("street"), (accProb, brakingProb, corneringProb, t._2)))
       })
 
     CassandraContext.StoreEventsForStreets(probability)
