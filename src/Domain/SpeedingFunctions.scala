@@ -30,23 +30,23 @@ object SpeedingFunctions {
     val h21 = collection.count(x => Helpers.getRowsByHourRange(x, 21, 22))
     val h22 = collection.filter(x => Helpers.getRowsByHourRange(x, 22, 23)).length
 
-//    System.out.println("h6 "+ h6)
-//    System.out.println("h7 "+ h7)
-//    System.out.println("h8 "+ h8)
-//    System.out.println("h9 "+ h9)
-//    System.out.println("h10 "+ h10)
-//    System.out.println("h11 "+ h11)
-//    System.out.println("h12 "+ h12)
-//    System.out.println("h13 "+ h13)
-//    System.out.println("h14 "+ h14)
-//    System.out.println("h15 "+ h15)
-//    System.out.println("h16 "+ h16)
-//    System.out.println("h17 "+ h17)
-//    System.out.println("h18 "+ h18)
-//    System.out.println("h19 "+ h19)
-//    System.out.println("h20 "+ h20)
-//    System.out.println("h21 "+ h21)
-//    System.out.println("h22 "+ h22)
+    System.out.println("h6 "+ h6)
+    System.out.println("h7 "+ h7)
+    System.out.println("h8 "+ h8)
+    System.out.println("h9 "+ h9)
+    System.out.println("h10 "+ h10)
+    System.out.println("h11 "+ h11)
+    System.out.println("h12 "+ h12)
+    System.out.println("h13 "+ h13)
+    System.out.println("h14 "+ h14)
+    System.out.println("h15 "+ h15)
+    System.out.println("h16 "+ h16)
+    System.out.println("h17 "+ h17)
+    System.out.println("h18 "+ h18)
+    System.out.println("h19 "+ h19)
+    System.out.println("h20 "+ h20)
+    System.out.println("h21 "+ h21)
+    System.out.println("h22 "+ h22)
   }
 
   def ByStreet(data: CassandraTableScanRDD[CassandraRow]) {
@@ -66,6 +66,7 @@ object SpeedingFunctions {
        probability += ((t._1.getString("street"), lProb))
     })
     CassandraContext.StoreSpeedingForStreets(probability)
+    System.out.println("Completed By Street")
   }
 
   def ByDriverSpeedDistanceRanking(data: CassandraTableScanRDD[CassandraRow]): Unit ={
@@ -85,6 +86,7 @@ object SpeedingFunctions {
       probability += ((t._1, lProb))
     })
     CassandraContext.StoreSpeedingDistanceForDrivers(probability)
+    System.out.println("Completed By driver speed distance")
   }
 
   def GetStreetRanking(data: CassandraTableScanRDD[CassandraRow]) {

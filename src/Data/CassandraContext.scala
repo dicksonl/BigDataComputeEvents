@@ -3,6 +3,8 @@ package Data
 import com.datastax.driver.core.{PoolingOptions, _}
 import org.apache.commons.lang.StringEscapeUtils
 
+import scala.collection.mutable.ListBuffer
+
 object CassandraContext {
   val pool = new PoolingOptions()
   val cluster = Cluster.builder()
@@ -82,10 +84,15 @@ object CassandraContext {
       (Float, Int, Float), Int)]){
     try {
       session.execute("Truncate harshEventsbyStreet;")
-
-      val batch = new BatchStatement()
+      var batches =  new ListBuffer[BatchStatement]
+      var batch = new BatchStatement()
 
       for((k, v) <- map){
+        if(batch.size() == 65535){
+          batches += batch
+          batch = new BatchStatement()
+        }
+
         batch.add(
           new SimpleStatement(
             "INSERT INTO ctrack.harshEventsbyStreet (" +
@@ -116,10 +123,15 @@ object CassandraContext {
                v._3._3 +
                ");"))
       }
-      session.execute(batch)
+
+      batches += batch
+
+      batches.foreach(x => session.executeAsync(x))
+
+      System.out.println("Completed events By Street")
 
       return true
     } finally {}
-    false
+    return false
   }
 }

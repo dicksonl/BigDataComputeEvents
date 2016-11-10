@@ -66,7 +66,7 @@ object HarshEventsFunctions {
             totalEvts += a._2
           }})
 
-        harshBraking.foreach(b =>{
+          harshBraking.foreach(b =>{
           if(b._1.getString("street") == t._1.getString("street")){
             brakingProb = (b._2.toFloat / t._2, b._2, (b._2.toFloat/t._2)*b._2)
             totalEvts += b._2
