@@ -15,15 +15,16 @@ object MainApp extends App{
   )
 
   //var data = sc.cassandraTable("ctrack", "movements")
-  var data = sc.cassandraTable("ctrack", "speedingbystreet")
-  //var data = sc.cassandraTable("ctrack", "speedingbydistancebydriver")
-  //var data = sc.cassandraTable("ctrack", "harsheventsbystreet")
-  data.cache
+  //data.cache
   //SpeedingFunctions.ByHour(data)
   //SpeedingFunctions.ByStreet(data)
   //SpeedingFunctions.ByDriverSpeedDistanceRanking(data)
   //HarshEventsFunctions.ByStreet(data)
-
+  
+  var data = sc.cassandraTable("ctrack", "speedingbystreet")
+  //var data = sc.cassandraTable("ctrack", "speedingbydistancebydriver")
+  //var data = sc.cassandraTable("ctrack", "harsheventsbystreet")
+  data.cache
   SpeedingFunctions.GetStreetRanking(data)
   //SpeedingFunctions.GetDriverDistanceRanking(data)
   //HarshEventsFunctions.GetStreetRanking(data)

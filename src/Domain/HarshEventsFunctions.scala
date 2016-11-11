@@ -71,19 +71,19 @@ object HarshEventsFunctions {
         }
 
         breakable {
-        brkMap.foreach(b =>{
-          if(b._1.getString("street") == t._1.getString("street")){
-            brakingProb = (b._2.toFloat / t._2, b._2, (b._2.toFloat/t._2)*b._2)
-            break
-          }})
+          brkMap.foreach(b =>{
+            if(b._1.getString("street") == t._1.getString("street")){
+              brakingProb = (b._2.toFloat / t._2, b._2, (b._2.toFloat/t._2)*b._2)
+              break
+            }})
         }
 
         breakable {
-        crnMap.foreach(c =>{
-          if(c._1.getString("street") == t._1.getString("street")){
-            corneringProb = (c._2.toFloat / t._2, c._2, (c._2.toFloat/t._2)*c._2)
-            break
-          }})
+          crnMap.foreach(c =>{
+            if(c._1.getString("street") == t._1.getString("street")){
+              corneringProb = (c._2.toFloat / t._2, c._2, (c._2.toFloat/t._2)*c._2)
+              break
+            }})
         }
 
         probability += ((t._1.getString("street"), (accProb, brakingProb, corneringProb, t._2)))
