@@ -4,11 +4,9 @@ import com.datastax.spark.connector.CassandraRow
 import com.datastax.spark.connector.rdd.CassandraTableScanRDD
 import main.Helpers
 import Data.CassandraContext
-
 import scala.collection.mutable
 import Models.{SpeedingByDriverDistance, speeding}
 import org.joda.time.DateTime
-
 import scala.collection.mutable.ListBuffer
 import scala.util.control.Breaks._
 
@@ -120,9 +118,9 @@ object SpeedingFunctions {
         dangerousSpeed += x
       }
     })
-    
 
-//
+    CassandraContext.StoreHighSpeedEvents(dangerousSpeed)
+
 //    dangerousSpeed.sortBy(_._2).reverse.foreach(x => {
 //      System.out.println(x._1 + " at " + x._3 + " speeding over " + (((x._2/x._4)*100) - 100) + "% doing " + x._2 + " on a " + x._4 + " road")
 //    })
