@@ -97,6 +97,25 @@ object SpeedingFunctions {
     System.out.println("Completed By driver speed distance")
   }
 
+  def ByDriverDangerousDriving(data: CassandraTableScanRDD[CassandraRow]) {
+    val speeding =
+      data.where("mobilestatus = ?", "Speed Violation").map(x =>(x.getString("driverid"), x.getInt("mobilespeed"), x.getString("street"), x.getFloat("streetmaxspeed"))).collect
+
+    var dangerousSpeed = new ListBuffer[(String, Int, String, Float)]
+
+    speeding.foreach(x => {
+      if(x._2/x._4 >= 1.2){
+        dangerousSpeed += x
+      }
+    })
+
+    dangerousSpeed.sortBy(_._2).reverse.foreach(x => {
+      System.out.println(x._1 + " at " + x._3 + " speeding over " + (((x._2/x._4)*100)-100) + "% doing " + x._2 + " on a " + x._4 + " road")
+    })
+
+    var s = 1
+  }
+
   def GetStreetRanking(data: CassandraTableScanRDD[CassandraRow]) {
     val collection = data.where("significance > ?", 0).collect
     var rank = new ListBuffer[speeding]
