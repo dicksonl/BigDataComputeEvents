@@ -14,17 +14,17 @@ object MainApp extends App{
       .set("spark.cassandra.connection.port", "9042")
   )
 
-  var data = sc.cassandraTable("ctrack", "movements")
-  //var data = sc.cassandraTable("ctrack", "speedingbystreet")
+  //var data = sc.cassandraTable("ctrack", "movements")
+  var data = sc.cassandraTable("ctrack", "speedingbystreet")
   //var data = sc.cassandraTable("ctrack", "speedingbydistancebydriver")
   //var data = sc.cassandraTable("ctrack", "harsheventsbystreet")
   data.cache
   //SpeedingFunctions.ByHour(data)
   //SpeedingFunctions.ByStreet(data)
   //SpeedingFunctions.ByDriverSpeedDistanceRanking(data)
-  HarshEventsFunctions.ByStreet(data)
+  //HarshEventsFunctions.ByStreet(data)
 
-  //Speeding.GetStreetRanking(data)
+  SpeedingFunctions.GetStreetRanking(data)
   //SpeedingFunctions.GetDriverDistanceRanking(data)
   //HarshEventsFunctions.GetStreetRanking(data)
 }

@@ -6,6 +6,7 @@ import com.datastax.spark.connector.CassandraRow
 import com.datastax.spark.connector.rdd.CassandraTableScanRDD
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
+import scala.util.control.Breaks._
 
 object HarshEventsFunctions {
   def ByStreet(data: CassandraTableScanRDD[CassandraRow]){
@@ -14,38 +15,35 @@ object HarshEventsFunctions {
         .select("street")
         .map(x =>(x, 1))
         .reduceByKey(_+_)
-        .collect
 
       val harshBraking = data
         .where("mobilestatus = ?", "Harsh Braking")
         .select("street")
         .map(x =>(x, 1))
         .reduceByKey(_+_)
-        .collect
 
       val harshCornering = data
         .where("mobilestatus = ?", "Harsh Cornering")
         .select("street")
         .map(x =>(x, 1))
         .reduceByKey(_+_)
-        .collect
 
       val safeDriving = data
         .where("mobilestatus = ?", "Driving")
         .select("street")
         .map(x =>(x, 1))
         .reduceByKey(_+_)
-        .collect
 
-      val totalEvents =
-        ( harshAcc ++ harshBraking ++ harshCornering)
-          .groupBy( _._1 )
-          .map( kv => (kv._1, kv._2.map( _._2).sum ))
+      val totalEvents = harshAcc
+        .union(harshBraking)
+        .union(harshCornering)
+        .groupByKey()
+        .mapValues(x => x.sum)
 
-      val totalMovements =
-        ( totalEvents ++ safeDriving )
-          .groupBy( _._1 )
-          .map( kv => (kv._1, kv._2.map( _._2).sum ))
+      val totalMovements = totalEvents
+        .union(safeDriving)
+        .groupByKey()
+        .mapValues(x => x.sum)
 
       var probability = mutable.Map[
         String,
@@ -54,31 +52,46 @@ object HarshEventsFunctions {
          (Float, Int, Float),
           Int)]()
 
-      totalMovements.foreach( t => {
+       val accMap = harshAcc.collectAsMap
+       val brkMap = harshBraking.collectAsMap
+       val crnMap = harshCornering.collectAsMap
+
+      totalMovements.collect.foreach(
+        t => {
         var accProb = (0f, 0, 0f)
         var brakingProb = (0f, 0, 0f)
         var corneringProb = (0f, 0, 0f)
 
-        harshAcc.foreach(a =>{
-          if(a._1.getString("street") == t._1.getString("street")){
-            accProb = (a._2.toFloat / t._2, a._2, (a._2.toFloat/t._2)*a._2)
-          }})
+        breakable {
+          accMap.foreach(a =>{
+            if(a._1.getString("street") == t._1.getString("street")){
+              accProb = (a._2.toFloat / t._2, a._2, (a._2.toFloat/t._2)*a._2)
+              break
+            }})
+        }
 
-          harshBraking.foreach(b =>{
+        breakable {
+        brkMap.foreach(b =>{
           if(b._1.getString("street") == t._1.getString("street")){
             brakingProb = (b._2.toFloat / t._2, b._2, (b._2.toFloat/t._2)*b._2)
+            break
           }})
+        }
 
-        harshCornering.foreach(c =>{
+        breakable {
+        crnMap.foreach(c =>{
           if(c._1.getString("street") == t._1.getString("street")){
             corneringProb = (c._2.toFloat / t._2, c._2, (c._2.toFloat/t._2)*c._2)
+            break
           }})
+        }
 
         probability += ((t._1.getString("street"), (accProb, brakingProb, corneringProb, t._2)))
       })
 
-    CassandraContext.StoreEventsForStreets(probability)
+     CassandraContext.StoreEventsForStreets(probability)
   }
+
 
   def GetStreetRanking(data: CassandraTableScanRDD[CassandraRow]) {
     val collection = data.where("totalmovements > ?", 0).collect
@@ -99,7 +112,7 @@ object HarshEventsFunctions {
         x.getInt("totalmovements"))
     )
 
-    val sorted = rank.sortBy(_.accsignificance).reverse
+    val sorted = rank.sortBy(_.accsignificance).reverse.take(100)
     sorted.foreach(x => System.out.println(x.address + ":" + x.accsignificance + "=" + x.accevents + "/" + x.totalmovements))
   }
 }

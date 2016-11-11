@@ -7,6 +7,7 @@ import Data.CassandraContext
 import scala.collection.mutable
 import Models.{SpeedingByDriverDistance, speeding}
 import scala.collection.mutable.ListBuffer
+import scala.util.control.Breaks._
 
 object SpeedingFunctions {
   def ByHour(data: CassandraTableScanRDD[CassandraRow]){
@@ -58,11 +59,14 @@ object SpeedingFunctions {
     var probability = mutable.Map[String,(Float, Int, Int, Float)]()
     totalMovements.foreach( t => {
       var lProb = (0f, 0, 0, 0f)
+      breakable {
         speeding.foreach(s =>{
           if(s._1.getString("street") == t._1.getString("street")){
               lProb = (s._2.toFloat / t._2, s._2, t._2, (s._2.toFloat/t._2)*s._2)
+              break
           }
         })
+      }
        probability += ((t._1.getString("street"), lProb))
     })
     CassandraContext.StoreSpeedingForStreets(probability)
@@ -71,18 +75,22 @@ object SpeedingFunctions {
 
   def ByDriverSpeedDistanceRanking(data: CassandraTableScanRDD[CassandraRow]): Unit ={
     val speeding =
-      data.where("mobilestatus = ?", "Speed Violation").map(x =>(x.getString("driverid"), x.getInt("mobileodo"))).reduceByKey(_+_).collect
+      data.where("mobilestatus = ?", "Speed Violation").map(x =>(x.getString("driverid"), x.getInt("mobileodo"))).reduceByKey(_+_)
     val safeDriving =
-      data.where("mobilestatus = ?", "Driving").map(x =>(x.getString("driverid"), x.getInt("mobileodo"))).reduceByKey(_+_).collect
-    val totalMovements = ( speeding ++ safeDriving ).groupBy( _._1 ).map( kv => (kv._1, kv._2.map( _._2).sum ))
+      data.where("mobilestatus = ?", "Driving").map(x =>(x.getString("driverid"), x.getInt("mobileodo"))).reduceByKey(_+_)
+    val totalMovements = speeding.union(safeDriving).groupByKey().mapValues(x => x.sum)
+    val speedingArr = speeding.collect
     var probability = mutable.Map[String,(Float, Int, Int, Float)]()
-    totalMovements.foreach( t => {
+    totalMovements.collect.foreach( t => {
       var lProb = (0f, 0, 0, 0f)
-      speeding.foreach(s =>{
-        if(s._1 == t._1){
-          lProb = (s._2.toFloat / t._2, s._2, t._2, (s._2.toFloat/t._2)*s._2)
-        }
-      })
+      breakable {
+        speedingArr.foreach(s => {
+          if (s._1 == t._1) {
+            lProb = (s._2.toFloat / t._2, s._2, t._2, (s._2.toFloat / t._2) * s._2)
+            break
+          }
+        })
+      }
       probability += ((t._1, lProb))
     })
     CassandraContext.StoreSpeedingDistanceForDrivers(probability)
