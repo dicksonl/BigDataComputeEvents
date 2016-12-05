@@ -125,7 +125,7 @@ object CassandraContext {
               "$$" + StringEscapeUtils.escapeJava(k) + "$$, " +
               v._1 + "," +
               "$$" + StringEscapeUtils.escapeJava(v._2) + "$$, " +
-              v._4 + "," +
+              v._3 + "," +
               (((v._1/v._3)*100) - 100) + ", " +
               "$$" + StringEscapeUtils.escapeJava(v._4.toString) + "$$" +
               ");"))
@@ -133,7 +133,7 @@ object CassandraContext {
 
       batches += batch
 
-      batches.foreach(x => session.executeAsync(x))
+      batches.foreach(x => session.execute(x))
 
       System.out.println("Completed high speed speeding")
 

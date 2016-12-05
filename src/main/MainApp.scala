@@ -17,9 +17,9 @@ object MainApp extends App{
   var data = sc.cassandraTable("ctrack", "movements")
   data.cache
   //SpeedingFunctions.ByHour(data)
-  SpeedingFunctions.ByStreet(data)
+  //SpeedingFunctions.ByStreet(data)
   //SpeedingFunctions.ByDriverSpeedDistanceRanking(data)
-  //SpeedingFunctions.ByDriverDangerousDriving(data)
+  SpeedingFunctions.ByDriverDangerousDriving(data)
   //HarshEventsFunctions.ByStreet(data)
 
   //var data = sc.cassandraTable("ctrack", "speedingbystreet")
