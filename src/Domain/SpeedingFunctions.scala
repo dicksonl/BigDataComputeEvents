@@ -110,12 +110,11 @@ object SpeedingFunctions {
           x.getDateTime("ddate")))
         .collect
 
-    var dangerousSpeed =
-      new ListBuffer[(String, Int, String, Float, DateTime)]
+    var dangerousSpeed = mutable.Map[String, (Int, String, Float, DateTime)]()
 
     speeding.foreach(x => {
       if(x._2/x._4 >= 1.2){
-        dangerousSpeed += x
+        dangerousSpeed += ((x._1, (x._2, x._3, x._4, x._5)))
       }
     })
 

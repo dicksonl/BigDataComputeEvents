@@ -3,7 +3,6 @@ package Data
 import com.datastax.driver.core.{PoolingOptions, _}
 import org.apache.commons.lang.StringEscapeUtils
 import org.joda.time.DateTime
-
 import scala.collection.mutable.ListBuffer
 
 object CassandraContext {
@@ -18,9 +17,15 @@ object CassandraContext {
     try {
       session.execute("Truncate speedingbystreet;")
 
-      val batch = new BatchStatement()
+      var batches =  new ListBuffer[BatchStatement]
+      var batch = new BatchStatement()
 
       for((k, v) <- map){
+        if(batch.size() == 65535){
+          batches += batch
+          batch = new BatchStatement()
+        }
+
         batch.add(
           new SimpleStatement(
           "INSERT INTO ctrack.speedingbystreet (" +
@@ -39,7 +44,10 @@ object CassandraContext {
           v._3 + "" +
           ");"))
       }
-      session.execute(batch)
+
+      batches += batch
+
+      batches.foreach(x => session.executeAsync(x))
 
       return true
     } finally {}
@@ -50,9 +58,15 @@ object CassandraContext {
     try {
       session.execute("Truncate speedingbydistancebydriver;")
 
-      val batch = new BatchStatement()
+      var batches =  new ListBuffer[BatchStatement]
+      var batch = new BatchStatement()
 
       for((k, v) <- map){
+        if(batch.size() == 65535){
+          batches += batch
+          batch = new BatchStatement()
+        }
+
         batch.add(
           new SimpleStatement(
             "INSERT INTO ctrack.speedingbydistancebydriver (" +
@@ -71,20 +85,31 @@ object CassandraContext {
               v._3 + "" +
               ");"))
       }
-      session.execute(batch)
+
+      batches += batch
+
+      batches.foreach(x => session.executeAsync(x))
+
+      System.out.println("Completed speeding distance for drivers")
 
       return true
     } finally {}
     false
   }
 
-  def StoreHighSpeedEvents(map: ListBuffer[(String, Int, String, Float, DateTime)]): Boolean ={
+  def StoreHighSpeedEvents(map: scala.collection.mutable.Map[String, (Int, String, Float, DateTime)]): Boolean ={
     try {
       session.execute("Truncate highSpeedDrivers;")
 
-      val batch = new BatchStatement()
+      var batches =  new ListBuffer[BatchStatement]
+      var batch = new BatchStatement()
 
-      map.foreach( x => {
+      for((k, v) <- map){
+        if(batch.size() == 65535){
+          batches += batch
+          batch = new BatchStatement()
+        }
+
         batch.add(
           new SimpleStatement(
             "INSERT INTO ctrack.highSpeedDrivers (" +
@@ -97,16 +122,18 @@ object CassandraContext {
               "eventtime" +
               ") VALUES (" +
               "1, " +
-              "$$" + StringEscapeUtils.escapeJava(x._1) + "$$, " +
-              x._2 + "," +
-              "$$" + StringEscapeUtils.escapeJava(x._3) + "$$, " +
-              x._4 + "," +
-              (((x._2/x._4)*100) - 100) + ", " +
-              "$$" + StringEscapeUtils.escapeJava(x._5.toString) + "$$" +
+              "$$" + StringEscapeUtils.escapeJava(k) + "$$, " +
+              v._1 + "," +
+              "$$" + StringEscapeUtils.escapeJava(v._2) + "$$, " +
+              v._4 + "," +
+              (((v._1/v._3)*100) - 100) + ", " +
+              "$$" + StringEscapeUtils.escapeJava(v._4.toString) + "$$" +
               ");"))
-      })
+      }
 
-      session.execute(batch)
+      batches += batch
+
+      batches.foreach(x => session.executeAsync(x))
 
       System.out.println("Completed high speed speeding")
 
